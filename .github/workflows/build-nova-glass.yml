@@ -1,0 +1,45 @@
+name: Fabriquer Nova Glass
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - "NovaGlass/**"
+      - ".github/workflows/build-nova-glass.yml"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Récupérer le projet
+        uses: actions/checkout@v4
+
+      - name: Installer .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Vérifier le projet
+        run: dotnet restore NovaGlass/NovaGlass.csproj
+
+      - name: Compiler la version Windows autonome
+        run: >-
+          dotnet publish NovaGlass/NovaGlass.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output publish/NovaGlass
+          -p:PublishReadyToRun=false
+
+      - name: Créer le ZIP
+        shell: pwsh
+        run: Compress-Archive -Path publish/NovaGlass/* -DestinationPath NovaGlass_Windows_11.zip -Force
+
+      - name: Télécharger le résultat
+        uses: actions/upload-artifact@v4
+        with:
+          name: NovaGlass-Windows-11
+          path: NovaGlass_Windows_11.zip
+          if-no-files-found: error
+          retention-days: 30

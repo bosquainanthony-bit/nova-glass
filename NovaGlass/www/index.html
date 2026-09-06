@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nova Glass</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f2f7f7;
+      --muted: #7f9694;
+      --muted-2: #536966;
+      --line: rgba(179, 236, 230, .12);
+      --glass: rgba(11, 31, 31, .48);
+      --glass-strong: rgba(8, 26, 26, .72);
+      --aqua: #48dccf;
+      --aqua-soft: #93f1e8;
+      --danger: #df7788;
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      color: var(--ink);
+      font-family: "Segoe UI Variable Text", "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 81% 8%, rgba(22, 184, 173, .20), transparent 35%),
+        radial-gradient(circle at 38% 100%, rgba(37, 109, 111, .22), transparent 40%),
+        rgba(4, 14, 14, .76);
+    }
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border: 1px solid rgba(114, 236, 224, .07);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    body::before { width: 520px; height: 520px; right: -170px; top: -190px; }
+    body::after { width: 290px; height: 290px; right: -55px; top: -75px; }
+    button { color: inherit; font: inherit; }
+    button:focus-visible { outline: 2px solid var(--aqua); outline-offset: 3px; }
+    .shell {
+      display: grid;
+      grid-template-columns: 238px minmax(0, 1fr);
+      gap: 14px;
+      width: 100%;
+      height: 100%;
+      padding: 16px;
+    }
+    .glass {
+      border: 1px solid var(--line);
+      background: var(--glass);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .27), inset 0 1px 0 rgba(255,255,255,.035);
+      backdrop-filter: blur(28px) saturate(135%);
+      -webkit-backdrop-filter: blur(28px) saturate(135%);
+    }
+    .sidebar {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 24px 15px 15px;
+      border-radius: 25px;
+    }
+    .brand { padding: 0 9px 20px; }
+    .brand-name { display: block; font-size: 21px; font-weight: 640; letter-spacing: -.5px; }
+    .brand-sub { display: block; margin-top: 3px; color: var(--muted-2); font-size: 10px; letter-spacing: .5px; }
+    .nav-title { padding: 0 10px 8px; color: var(--muted-2); font-size: 9px; font-weight: 650; letter-spacing: 1.3px; text-transform: uppercase; }
+    .nav { display: grid; gap: 3px; }
+    .app {
+      display: grid;
+      grid-template-columns: 34px 1fr 8px;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 47px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: #9cb0ad;
+      text-align: left;
+      cursor: pointer;
+      transition: background .16s ease, color .16s ease, transform .16s ease;
+    }
+    .app:hover, .app.selected { background: rgba(72, 220, 207, .10); color: #effffc; }
+    .app:active { transform: scale(.985); }
+    .app:disabled { color: #415653; cursor: default; }
+    .app:disabled:hover { background: transparent; }
+    .app-icon {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid rgba(119, 211, 202, .14);
+      border-radius: 10px;
+      background: rgba(255,255,255,.035);
+      color: #72ddd3;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .app-name { font-size: 12px; font-weight: 520; }
+    .app-arrow { color: #3e5b58; font-size: 16px; }
+    .side-actions { display: grid; gap: 7px; margin-top: auto; }
+    .ghost-button {
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid rgba(132, 205, 198, .13);
+      border-radius: 11px;
+      background: rgba(255,255,255,.025);
+      color: #819894;
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .ghost-button:hover { border-color: rgba(72,220,207,.40); background: rgba(72,220,207,.07); color: #dffbf8; }
+    .ghost-button.danger:hover { border-color: rgba(223,119,136,.35); background: rgba(135,42,58,.12); color: #efb7c0; }
+    main { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 14px; min-width: 0; min-height: 0; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; min-height: 34px; padding: 0 4px; }
+    .topbar-title { color: #8ba09d; font-size: 10px; letter-spacing: .8px; }
+    .topbar-status { display: flex; align-items: center; gap: 8px; color: #68807d; font-size: 10px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--aqua); box-shadow: 0 0 12px rgba(72,220,207,.55); }
+    .dashboard {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(250px, .72fr);
+      grid-template-rows: 148px minmax(0, 1fr);
+      gap: 14px;
+      min-height: 0;
+    }
+    .hero {
+      position: relative;
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 26px 30px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: 7%;
+      top: -125%;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(50,216,202,.15), transparent 68%);
+      pointer-events: none;
+    }
+    .hero-copy { z-index: 1; }
+    .hero h1 { margin: 0 0 8px; font-size: clamp(24px, 2.5vw, 38px); font-weight: 520; letter-spacing: -1.2px; }
+    .hero p { margin: 0; color: var(--muted); font-size: 11px; }
+    .clock-block { z-index: 1; min-width: 230px; text-align: right; }
+    .date { color: #829794; font-size: 12px; letter-spacing: .5px; }
+    .time { margin-top: 2px; font-size: clamp(42px, 5vw, 66px); font-weight: 230; line-height: .95; letter-spacing: -3px; }
+    .player {
+      display: grid;
+      grid-template-columns: minmax(210px, .72fr) minmax(260px, 1fr);
+      gap: 18px;
+      min-height: 0;
+      padding: 18px;
+      border-radius: var(--radius);
+    }
+    .visualizer-wrap { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 13px; border: 1px solid rgba(143,214,207,.09); border-radius: 16px; background: rgba(0,0,0,.13); }
+    .micro-label { color: #57706d; font-size: 8px; font-weight: 650; letter-spacing: 1px; text-transform: uppercase; }
+    .visualizer { display: grid; grid-template-columns: repeat(20, 1fr); align-items: end; gap: 4px; flex: 1; min-height: 90px; padding-top: 13px; }
+    .eq-column { display: flex; flex-direction: column-reverse; gap: 4px; height: 100%; }
+    .eq-cell { flex: 1; min-height: 3px; border-radius: 2px; background: rgba(85,130,126,.16); transition: background .12s ease, box-shadow .12s ease; }
+    .eq-cell.on { background: var(--aqua); box-shadow: 0 0 8px rgba(72,220,207,.24); }
+    .eq-cell.peak { background: var(--aqua-soft); box-shadow: 0 0 9px rgba(147,241,232,.30); }
+    .track { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 5px 3px; }
+    .player-status { display: flex; align-items: center; gap: 8px; color: #66807c; font-size: 9px; letter-spacing: .6px; text-transform: uppercase; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3e5552; }
+    .online .status-dot { background: var(--aqua); box-shadow: 0 0 10px rgba(72,220,207,.50); }
+    .track h2 { margin: 16px 0 5px; overflow: hidden; color: #f1f8f7; font-size: clamp(20px, 2vw, 29px); font-weight: 520; letter-spacing: -.6px; text-overflow: ellipsis; white-space: nowrap; }
+    .artist { margin: 0; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .timeline { margin-top: auto; }
+    .times { display: flex; justify-content: space-between; margin-bottom: 7px; color: #5e7672; font-size: 9px; }
+    .progress { height: 4px; overflow: hidden; border-radius: 4px; background: rgba(112,158,153,.16); }
+    .progress > span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #35c9bb, #91eee5); transition: width .4s linear; }
+    .controls { display: flex; gap: 8px; margin-top: 14px; }
+    .media-button { min-width: 42px; height: 36px; padding: 0 13px; border: 1px solid rgba(133,207,200,.13); border-radius: 11px; background: rgba(255,255,255,.025); color: #91a7a4; cursor: pointer; }
+    .media-button:hover { border-color: rgba(72,220,207,.40); background: rgba(72,220,207,.07); color: #e9fffc; }
+    .media-button.primary { min-width: 68px; border-color: rgba(72,220,207,.25); background: rgba(72,220,207,.12); color: #c5faf5; }
+    .resources { display: grid; grid-template-rows: auto repeat(4, 1fr); gap: 9px; min-height: 0; padding: 18px; border-radius: var(--radius); }
+    .resource-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1px; }
+    .resource-heading strong { font-size: 13px; font-weight: 560; }
+    .resource-heading span { color: #536c68; font-size: 8px; text-transform: uppercase; }
+    .metric { display: grid; grid-template-columns: 1fr auto; align-content: center; gap: 7px 12px; min-height: 0; padding: 10px 12px; border: 1px solid rgba(141,210,204,.09); border-radius: 14px; background: rgba(255,255,255,.018); }
+    .metric-name { color: #7f9692; font-size: 10px; }
+    .metric-value { font-size: 15px; font-weight: 540; }
+    .meter { grid-column: 1 / -1; height: 4px; overflow: hidden; border-radius: 4px; background: rgba(103,151,146,.14); }
+    .meter span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #2bbbad, #73e3d8); transition: width .35s ease; }
+    .notice { display: flex; align-items: center; gap: 12px; min-height: 45px; padding: 8px 15px; border-radius: 14px; }
+    .notice-mark { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #4b6662; }
+    .notice.error .notice-mark { background: var(--danger); }
+    .notice-copy { min-width: 0; }
+    .notice-title { display: block; color: #99afac; font-size: 9px; font-weight: 650; letter-spacing: .5px; text-transform: uppercase; }
+    .notice-text { display: block; overflow: hidden; margin-top: 2px; color: #5f7773; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    @media (orientation: portrait) {
+      .shell { grid-template-columns: 1fr; grid-template-rows: auto minmax(0,1fr); }
+      .sidebar { padding: 12px; border-radius: 18px; }
+      .brand { display: flex; align-items: baseline; gap: 9px; padding: 0 4px 10px; }
+      .brand-name { font-size: 17px; }
+      .brand-sub { margin: 0; }
+      .nav-title { display: none; }
+      .nav { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .app { grid-template-columns: 30px 1fr; min-height: 40px; padding: 4px 7px; background: rgba(255,255,255,.018); }
+      .app-icon { width: 29px; height: 29px; border-radius: 9px; }
+      .app-arrow { display: none; }
+      .side-actions { position: absolute; right: 12px; top: 10px; display: flex; margin: 0; }
+      .side-actions .ghost-button { min-height: 27px; padding: 4px 8px; font-size: 0; }
+      .side-actions .ghost-button::after { font-size: 11px; }
+      #toggleWindow::after { content: "□"; }
+      #closeWindow::after { content: "×"; }
+      main { gap: 10px; }
+      .topbar { display: none; }
+      .dashboard { grid-template-columns: 1fr; grid-template-rows: 125px minmax(220px,1fr) 210px; gap: 10px; }
+      .hero { grid-column: auto; padding: 20px 23px; }
+      .player { grid-template-columns: .85fr 1.15fr; padding: 13px; }
+      .resources { grid-template-columns: repeat(4,1fr); grid-template-rows: auto 1fr; gap: 7px; padding: 13px; }
+      .resource-heading { grid-column: 1 / -1; }
+      .metric { padding: 8px; }
+      .metric-name { font-size: 8px; }
+      .metric-value { font-size: 12px; }
+    }
+    @media (max-width: 900px) and (orientation: landscape) {
+      .shell { grid-template-columns: 205px minmax(0,1fr); padding: 10px; gap: 10px; }
+      .sidebar { padding: 17px 10px 10px; }
+      .app { min-height: 42px; }
+      .dashboard { grid-template-rows: 122px minmax(0,1fr); gap: 10px; }
+      .hero { padding: 18px 22px; }
+      .player { grid-template-columns: .75fr 1fr; padding: 12px; gap: 12px; }
+      .resources { padding: 12px; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar glass">
+      <div class="brand"><span class="brand-name">Nova</span><span class="brand-sub">Personal dashboard</span></div>
+      <div class="nav-title">Applications</div>
+      <nav class="nav" id="appNav" aria-label="Applications">
+        <button class="app" data-app="0"><span class="app-icon">OL</span><span class="app-name">Outlook</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="1"><span class="app-icon">FF</span><span class="app-name">Firefox</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="2"><span class="app-icon">KO</span><span class="app-name">Kodi</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="3"><span class="app-icon">SP</span><span class="app-name">Spotify</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="4"><span class="app-icon">ST</span><span class="app-name">Steam</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="5"><span class="app-icon">EX</span><span class="app-name">Explorer</span><span class="app-arrow">›</span></button>
+        <button class="app" data-app="6"><span class="app-icon">CA</span><span class="app-name">Calibre</span><span class="app-arrow">›</span></button>
+      </nav>
+      <div class="side-actions">
+        <button class="ghost-button" id="toggleWindow">Mode fenêtre</button>
+        <button class="ghost-button danger" id="closeWindow">Fermer</button>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <span class="topbar-title">ESPACE PERSONNEL</span>
+        <span class="topbar-status"><i class="live-dot"></i> Windows 11 · connexion locale</span>
+      </header>
+      <section class="dashboard">
+        <article class="hero glass">
+          <div class="hero-copy"><h1>Votre espace, en un regard.</h1><p>Applications, musique et performances réunies au même endroit.</p></div>
+          <div class="clock-block"><div class="date" id="date">--/--/----</div><div class="time" id="time">--:--</div></div>
+        </article>
+        <article class="player glass" id="player">
+          <div class="visualizer-wrap"><span class="micro-label">Niveau audio</span><div class="visualizer" id="visualizer"></div></div>
+          <div class="track">
+            <div class="player-status"><i class="status-dot"></i><span id="playerStatus">Recherche de Spotify</span></div>
+            <h2 id="trackTitle">Lecteur en initialisation</h2>
+            <p class="artist" id="trackArtist">Session multimédia Windows</p>
+            <div class="timeline">
+              <div class="times"><span id="position">00:00</span><span id="duration">00:00</span></div>
+              <div class="progress"><span id="progress"></span></div>
+              <div class="controls">
+                <button class="media-button" data-media="PREVIOUS" aria-label="Morceau précédent">‹‹</button>
+                <button class="media-button primary" data-media="PLAYPAUSE" aria-label="Lecture ou pause">Lecture / Pause</button>
+                <button class="media-button" data-media="NEXT" aria-label="Morceau suivant">››</button>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="resources glass">
+          <div class="resource-heading"><strong>Performances</strong><span>Temps réel</span></div>
+          <div class="metric"><span class="metric-name">Processeur</span><span class="metric-value" id="cpuValue">--%</span><div class="meter"><span id="cpuBar"></span></div></div>
+          <div class="metric"><span class="metric-name">Mémoire</span><span class="metric-value" id="memoryValue">--%</span><div class="meter"><span id="memoryBar"></span></div></div>
+          <div class="metric"><span class="metric-name">Disque</span><span class="metric-value" id="diskValue">--%</span><div class="meter"><span id="diskBar"></span></div></div>
+          <div class="metric"><span class="metric-name">Réseau</span><span class="metric-value" id="networkValue">--%</span><div class="meter"><span id="networkBar"></span></div></div>
+        </article>
+      </section>
+      <div class="notice glass" id="notice"><i class="notice-mark"></i><div class="notice-copy"><span class="notice-title" id="noticeTitle">Prêt</span><span class="notice-text" id="noticeText">Utilisez les raccourcis ou les touches 1 à 7.</span></div></div>
+    </main>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const apps = [...document.querySelectorAll('.app')];
+      const cells = [];
+      let selected = 0;
+      let audioLevel = 0;
+      let playing = false;
+
+      const send = message => window.chrome?.webview?.postMessage(message);
+      const pad = value => String(value).padStart(2, '0');
+      const formatTime = seconds => {
+        seconds = Math.max(0, Number(seconds) || 0);
+        return `${Math.floor(seconds / 60)}:${pad(Math.floor(seconds % 60))}`;
+      };
+
+      function buildVisualizer() {
+        const visualizer = document.getElementById('visualizer');
+        for (let column = 0; column < 20; column++) {
+          const node = document.createElement('span');
+          node.className = 'eq-column';
+          const columnCells = [];
+          for (let row = 0; row < 9; row++) {
+            const cell = document.createElement('i');
+            cell.className = 'eq-cell';
+            node.appendChild(cell);
+            columnCells.push(cell);
+          }
+          visualizer.appendChild(node);
+          cells.push(columnCells);
+        }
+      }
+
+      function drawVisualizer() {
+        const base = playing ? audioLevel : 0;
+        cells.forEach((column, index) => {
+          const wave = .70 + Math.sin(Date.now() / 230 + index * .74) * .18 + Math.sin(index * 1.71) * .08;
+          const active = Math.round((base / 100) * column.length * Math.max(.25, wave));
+          column.forEach((cell, row) => {
+            cell.className = 'eq-cell' + (row < active ? (row >= 7 ? ' peak' : ' on') : '');
+          });
+        });
+      }
+
+      function refreshClock() {
+        const now = new Date();
+        const parts = new Intl.DateTimeFormat('fr-FR', {
+          timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', hour12: false
+        }).formatToParts(now).reduce((all, part) => (all[part.type] = part.value, all), {});
+        document.getElementById('date').textContent = `${parts.day}/${parts.month}/${parts.year}`;
+        document.getElementById('time').textContent = `${parts.hour}:${parts.minute}`;
+      }
+
+      function metric(name, value) {
+        const valid = Number.isFinite(Number(value)) && Number(value) >= 0;
+        const amount = valid ? Math.max(0, Math.min(100, Number(value))) : 0;
+        document.getElementById(name + 'Value').textContent = valid ? `${Math.round(amount)}%` : '--%';
+        document.getElementById(name + 'Bar').style.width = `${amount}%`;
+      }
+
+      function updateState(state) {
+        playing = String(state.playback).toLowerCase() === 'playing';
+        const player = document.getElementById('player');
+        player.classList.toggle('online', Boolean(state.online));
+        document.getElementById('playerStatus').textContent = state.online ? (playing ? 'Lecture en cours' : 'Spotify en pause') : 'Spotify hors ligne';
+        document.getElementById('trackTitle').textContent = state.title || 'Aucune lecture détectée';
+        document.getElementById('trackArtist').textContent = state.artist || 'Ouvrez Spotify et lancez un morceau.';
+        document.getElementById('position').textContent = formatTime(state.position);
+        document.getElementById('duration').textContent = formatTime(state.duration);
+        const progress = Number(state.duration) > 0 ? Math.min(100, Number(state.position) / Number(state.duration) * 100) : 0;
+        document.getElementById('progress').style.width = `${progress}%`;
+        metric('cpu', state.cpu); metric('memory', state.memory); metric('disk', state.disk); metric('network', state.network);
+      }
+
+      function showNotice(title, text, error = false) {
+        const notice = document.getElementById('notice');
+        notice.classList.toggle('error', error);
+        document.getElementById('noticeTitle').textContent = title;
+        document.getElementById('noticeText').textContent = text;
+      }
+
+      window.chrome?.webview?.addEventListener('message', event => {
+        const message = event.data || {};
+        if (message.type === 'state') updateState(message.data || {});
+        if (message.type === 'level') audioLevel = Number(message.value) || 0;
+        if (message.type === 'notice') showNotice(message.title, message.text, message.error);
+        if (message.type === 'apps') apps.forEach((button, index) => {
+          button.disabled = message.available?.[index] === false;
+          button.title = button.disabled ? 'Raccourci introuvable' : '';
+        });
+      });
+
+      apps.forEach((button, index) => button.addEventListener('click', () => send({ type: 'launch', index })));
+      document.querySelectorAll('[data-media]').forEach(button => button.addEventListener('click', () => send({ type: 'media', command: button.dataset.media })));
+      document.getElementById('toggleWindow').addEventListener('click', () => send({ type: 'window', action: 'toggle' }));
+      document.getElementById('closeWindow').addEventListener('click', () => send({ type: 'window', action: 'close' }));
+
+      document.addEventListener('keydown', event => {
+        if (event.key >= '1' && event.key <= '7') { send({ type: 'launch', index: Number(event.key) - 1 }); event.preventDefault(); return; }
+        if (event.key === 'ArrowDown' || event.key === 'ArrowRight') selected = (selected + 1) % apps.length;
+        else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') selected = (selected + apps.length - 1) % apps.length;
+        else if (event.key === 'Enter') { send({ type: 'launch', index: selected }); event.preventDefault(); return; }
+        else if (event.key.toLowerCase() === 'p' || event.code === 'Space') { send({ type: 'media', command: 'PLAYPAUSE' }); event.preventDefault(); return; }
+        else if (event.key === '<') { send({ type: 'media', command: 'PREVIOUS' }); event.preventDefault(); return; }
+        else if (event.key === '>') { send({ type: 'media', command: 'NEXT' }); event.preventDefault(); return; }
+        else if (event.key === 'Escape' || event.key === 'F11') { send({ type: 'window', action: 'toggle' }); event.preventDefault(); return; }
+        else return;
+        apps.forEach((button, index) => button.classList.toggle('selected', index === selected));
+        apps[selected].focus();
+        event.preventDefault();
+      });
+
+      buildVisualizer();
+      drawVisualizer();
+      setInterval(drawVisualizer, 33);
+      refreshClock();
+      setInterval(refreshClock, 30000);
+      send({ type: 'ready' });
+    })();
+  </script>
+</body>
+</html>

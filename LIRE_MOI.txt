@@ -1,0 +1,58 @@
+NOVA GLASS — PROTOTYPE WEBVIEW2 POUR WINDOWS 11
+================================================
+
+Cette version est entièrement séparée du bureau HTA phosphore.
+Elle utilise une fenêtre Windows WPF et le moteur moderne Microsoft Edge
+WebView2 afin de prendre en charge le verre, le flou et les transparences.
+
+FONCTIONS CONSERVÉES
+--------------------
+- Les sept raccourcis personnels : Outlook, Firefox, Kodi, Spotify, Steam,
+  Explorer et Calibre.
+- L’activation d’une fenêtre Firefox déjà ouverte avant tout nouveau lancement.
+- Le lecteur Spotify fourni par la session multimédia de Windows.
+- Les commandes précédent, lecture/pause et suivant.
+- Le vumètre audio réel.
+- L’égaliseur animé à environ 30 images par seconde.
+- Les mesures CPU, mémoire, disque et réseau.
+- Les raccourcis clavier 1 à 7, flèches, Entrée, P, <, >, Échap et F11.
+
+COMPILATION DEPUIS WINDOWS, SANS VISUAL STUDIO
+----------------------------------------------
+Le ZIP fourni est un projet source. GitHub Actions fabrique automatiquement
+l’application Windows autonome :
+
+1. Créez un nouveau dépôt GitHub vide.
+2. Extrayez cette archive sur votre PC.
+3. Envoyez le CONTENU du dossier « nova-glass » à la racine du dépôt.
+   La racine doit contenir directement :
+      - le dossier NovaGlass ;
+      - le dossier .github ;
+      - ce fichier LIRE_MOI.txt.
+4. Dans GitHub, ouvrez l’onglet Actions.
+5. Choisissez « Fabriquer Nova Glass » dans la colonne de gauche.
+6. Cliquez sur « Run workflow », puis encore sur « Run workflow ».
+7. Attendez que le travail affiche une coche verte.
+8. Ouvrez le résultat terminé. Tout en bas, dans « Artifacts », téléchargez
+   « NovaGlass-Windows-11 ».
+9. Extrayez NovaGlass_Windows_11.zip et lancez NovaGlass.exe.
+
+L’application compilée contient son propre environnement .NET. Elle est donc
+plus volumineuse, mais ne demande pas l’installation de Visual Studio ou de
+.NET 8 sur le PC. WebView2 est intégré à Windows 11.
+
+TRANSPARENCE
+------------
+Nova Glass demande à Windows 11 un arrière-plan de type acrylique, puis place
+une interface WebView2 transparente au-dessus. Le résultat peut varier selon
+les options de transparence de Windows :
+
+Paramètres > Accessibilité > Effets visuels > Effets de transparence
+
+Cette option doit être activée pour profiter pleinement du verre et du flou.
+
+SÉCURITÉ ET DONNÉES
+-------------------
+L’application n’envoie aucune donnée. Le lecteur et le moniteur utilisent
+uniquement les interfaces locales de Windows. PowerShell reçoit une autorisation
+temporaire limitée au module Spotify ; aucune stratégie permanente n’est changée.
